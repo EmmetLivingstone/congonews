@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congo News Aggregator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="top-bar">
+        <h1>Congo News Aggregator</h1>
+    </div>
+    
+    <div class="date-navigation">
+        <button class="date-nav-button" id="prevDay">← Previous Day</button>
+        <span class="date-display" id="currentDate">Today (April 13, 2025)</span>
+        <button class="date-nav-button" id="nextDay" disabled>Next Day →</button>
+    </div>
+    
+    <div class="filter-controls">
+        <div class="filter-group">
+            <label for="category-filter">Category:</label>
+            <select id="category-filter">
+                <option value="all">All Categories</option>
+                <option value="politique">Politique</option>
+                <option value="securite">Sécurité</option>
+                <option value="economie">Économie</option>
+                <option value="societe">Société</option>
+                <option value="environnement">Environnement</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="source-filter">Source:</label>
+            <select id="source-filter">
+                <option value="all">All Sources</option>
+                <option value="Radio Okapi">Radio Okapi</option>
+                <option value="Actualite.cd">Actualite.cd</option>
+                <option value="Radio France Internationale">RFI</option>
+                <option value="Mines.cd">Mines.cd</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="search-input">Search:</label>
+            <input type="text" id="search-input" placeholder="Enter keywords...">
+        </div>
+    </div>
+    
+    <div class="content-container">
+        <div class="sidebar" id="sidebar">
+            <div class="loading">Loading news sources...</div>
+            
+            <div class="twitter-feed">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#1DA1F2" viewBox="0 0 16 16">
+                        <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                    </svg>
+                    Congo Twitter Profiles
+                </h3>
+                
+                <div class="twitter-profile" onclick="showTwitterTimeline('pascal_mulegwa')">
+                    <div class="profile-header">
+                        <img src="/api/placeholder/40/40" alt="Pascal Mulegwa" class="profile-img">
+                        <div>
+                            <div class="profile-name">Pascal Mulegwa</div>
+                            <div class="profile-handle">@pascal_mulegwa</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="twitter-profile" onclick="showTwitterTimeline('StanysBujakera')">
+                    <div class="profile-header">
+                        <img src="/api/placeholder/40/40" alt="Stanys Bujakera" class="profile-img">
+                        <div>
+                            <div class="profile-name">Stanys Bujakera</div>
+                            <div class="profile-handle">@StanysBujakera</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="twitter-profile" onclick="showTwitterTimeline('wembi_steve')">
+                    <div class="profile-header">
+                        <img src="/api/placeholder/40/40" alt="Steve Wembi" class="profile-img">
+                        <div>
+                            <div class="profile-name">Steve Wembi</div>
+                            <div class="profile-handle">@wembi_steve</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content" id="main-content">
+            <div class="welcome-message">
+                <h2>Welcome to Congo News Aggregator</h2>
+                <p>Select a news source and article from the sidebar to start reading.</p>
+                <p>Current view: <span id="view-date">Today's News (April 13, 2025)</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="news-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
