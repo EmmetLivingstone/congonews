@@ -395,5 +395,5 @@ const newsByDate = {
         uses: EndBug/add-and-commit@v9
         with:
           add: 'news-data.js'
-          message: 'Update news data for ${{ github.event.schedule == '' && 'manual trigger' || 'daily schedule' }}'
+          message: 'Update news data'
           default_author: github_actions
