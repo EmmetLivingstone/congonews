@@ -1,0 +1,292 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #1c1c1c;
+    color: #ffffff;
+}
+
+.top-bar {
+    background-color: #111111;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar h1 {
+    font-size: 20px;
+}
+
+.filter-controls {
+    display: flex;
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-bottom: 1px solid #444;
+}
+
+.filter-group {
+    margin-right: 20px;
+}
+
+.filter-group label {
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+select, input {
+    padding: 5px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #333;
+    color: white;
+}
+
+.date-navigation {
+    display: flex;
+    background-color: #2a2a2a;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #444;
+}
+
+.date-nav-button {
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin: 0 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.date-display {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.content-container {
+    display: flex;
+    flex: 1;
+}
+
+.sidebar {
+    width: 300px;
+    background-color: #2a2a2a;
+    border-right: 1px solid #444;
+    overflow-y: auto;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.source {
+    padding: 15px;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+}
+
+.source-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+}
+
+.articles {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.source.active .articles {
+    max-height: 2000px;
+}
+
+.article {
+    padding: 10px;
+    margin: 5px 0;
+    border-left: 3px solid #4285f4;
+    background-color: #333;
+    cursor: pointer;
+}
+
+.article:hover {
+    background-color: #444;
+}
+
+.article-title {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.article-date {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.article-category {
+    font-size: 11px;
+    color: #4285f4;
+    background-color: #333;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.content-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.content-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 20px;
+}
+
+.content-body {
+    line-height: 1.6;
+}
+
+.article-source-link {
+    display: block;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #333;
+    border-left: 3px solid #4285f4;
+    text-decoration: none;
+    color: #4285f4;
+    font-weight: bold;
+}
+
+.article-source-link:hover {
+    background-color: #444;
+}
+
+.caret {
+    transition: transform 0.3s ease;
+}
+
+.source.active .caret {
+    transform: rotate(90deg);
+}
+
+.welcome-message {
+    text-align: center;
+    margin-top: 50px;
+    color: #ccc;
+}
+
+.source-badge {
+    background-color: #444;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.no-results {
+    text-align: center;
+    margin-top: 30px;
+    color: #ccc;
+}
+
+.loading {
+    text-align: center;
+    margin-top: 30px;
+    color: #ccc;
+}
+
+.twitter-feed {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #2a2a2a;
+    border-top: 1px solid #444;
+}
+
+.twitter-feed h3 {
+    margin-bottom: 15px;
+    color: #1DA1F2;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.twitter-profile {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+}
+
+.twitter-profile:hover {
+    background-color: #333;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-weight: bold;
+}
+
+.profile-handle {
+    color: #aaa;
+    font-size: 12px;
+}
+
+.twitter-timeline-container {
+    margin-top: 20px;
+    min-height: 600px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .content-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        max-height: 300px;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        margin-bottom: 10px;
+    }
+}
