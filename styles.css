@@ -290,3 +290,36 @@ select, input {
         margin-bottom: 10px;
     }
 }
+
+.refresh-controls {
+    padding: 10px;
+    background-color: #2a2a2a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #444;
+}
+
+.refresh-btn {
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.refresh-btn:hover {
+    background-color: #3367d6;
+}
+
+.refresh-btn:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.refresh-info {
+    color: #aaa;
+    font-size: 14px;
+}
