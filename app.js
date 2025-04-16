@@ -1,106 +1,58 @@
-// ----------------
-// Global Variables
-// ----------------
-let currentDate = '2025-04-13'; // Default to today
+// Global variables
 let currentFilter = {
     category: 'all',
     source: 'all',
     search: ''
 };
+let newsData = [];
 
-// ----------------
 // Initialize
-// ----------------
 document.addEventListener('DOMContentLoaded', function() {
     // Set up event listeners
     document.getElementById('category-filter').addEventListener('change', handleFilterChange);
     document.getElementById('source-filter').addEventListener('change', handleFilterChange);
     document.getElementById('search-input').addEventListener('input', handleFilterChange);
-    document.getElementById('prevDay').addEventListener('click', goToPreviousDay);
-    document.getElementById('nextDay').addEventListener('click', goToNextDay);
+    document.getElementById('refresh-button').addEventListener('click', fetchLatestNews);
     
-    // Initialize the view
-    updateDateDisplay();
-    loadNewsFeed();
+    // Initial load
+    fetchLatestNews();
 });
 
-// ----------------
-// Event Handlers
-// ----------------
-function handleFilterChange() {
-    currentFilter = {
-        category: document.getElementById('category-filter').value,
-        source: document.getElementById('source-filter').value,
-        search: document.getElementById('search-input').value.toLowerCase()
-    };
-    
-    loadNewsFeed();
-}
-
-function goToPreviousDay() {
-    // Simple date navigation - in a real app, you'd use proper date manipulation
-    if (currentDate === '2025-04-13') {
-        currentDate = '2025-04-12';
-    } else if (currentDate === '2025-04-12') {
-        currentDate = '2025-04-11';
-    }
-    
-    // Update the UI
-    updateDateDisplay();
-    loadNewsFeed();
-    
-    // Enable/disable navigation buttons
-    document.getElementById('nextDay').disabled = false;
-    document.getElementById('prevDay').disabled = (currentDate === '2025-04-11');
-}
-
-function goToNextDay() {
-    // Simple date navigation - in a real app, you'd use proper date manipulation
-    if (currentDate === '2025-04-11') {
-        currentDate = '2025-04-12';
-    } else if (currentDate === '2025-04-12') {
-        currentDate = '2025-04-13';
-    }
-    
-    // Update the UI
-    updateDateDisplay();
-    loadNewsFeed();
-    
-    // Enable/disable navigation buttons
-    document.getElementById('prevDay').disabled = false;
-    document.getElementById('nextDay').disabled = (currentDate === '2025-04-13');
-}
-
-function updateDateDisplay() {
-    let displayDate;
-    
-    if (currentDate === '2025-04-13') {
-        displayDate = 'Today (April 13, 2025)';
-    } else if (currentDate === '2025-04-12') {
-        displayDate = 'Yesterday (April 12, 2025)';
-    } else {
-        displayDate = 'April 11, 2025';
-    }
-    
-    document.getElementById('currentDate').textContent = displayDate;
-    document.getElementById('view-date').textContent = displayDate;
-}
-
-// ----------------
-// News Feed Functions
-// ----------------
-function loadNewsFeed() {
+// Fetch latest news from the API
+async function fetchLatestNews() {
     const sidebar = document.getElementById('sidebar');
-    sidebar.innerHTML = '<div class="loading">Loading news...</div>';
+    sidebar.innerHTML = '<div class="loading">Fetching latest news...</div>';
     
-    // In a real app, this would be an API call
-    // For demonstration, we'll use our mock data
-    setTimeout(() => {
-        const articles = filterArticles(newsByDate[currentDate] || []);
-        displayNewsFeed(articles);
-    }, 500); // Simulate loading delay
+    document.getElementById('refresh-button').disabled = true;
+    document.getElementById('refresh-button').textContent = 'Refreshing...';
+    
+    try {
+        const response = await fetch('/api/get-news');
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch news');
+        }
+        
+        const data = await response.json();
+        newsData = data.news;
+        
+        // Update last refreshed time
+        const now = new Date();
+        document.getElementById('last-refreshed').textContent = now.toLocaleString();
+        
+        // Apply current filters and display
+        const filteredNews = filterArticles(newsData);
+        displayNewsFeed(filteredNews);
+    } catch (error) {
+        console.error('Error:', error);
+        sidebar.innerHTML = `<div class="error">Failed to fetch latest news. Please try again later.</div>`;
+    } finally {
+        document.getElementById('refresh-button').disabled = false;
+        document.getElementById('refresh-button').textContent = 'Refresh News';
+    }
 }
 
+// Filter news based on current filters
 function filterArticles(articles) {
     return articles.filter(article => {
         // Filter by category
@@ -114,7 +66,7 @@ function filterArticles(articles) {
         }
         
         // Filter by search term
-        if (currentFilter.search && !article.title.toLowerCase().includes(currentFilter.search)) {
+        if (currentFilter.search && !article.title.toLowerCase().includes(currentFilter.search.toLowerCase())) {
             return false;
         }
         
@@ -122,6 +74,19 @@ function filterArticles(articles) {
     });
 }
 
+// Event handler for filter changes
+function handleFilterChange() {
+    currentFilter = {
+        category: document.getElementById('category-filter').value,
+        source: document.getElementById('source-filter').value,
+        search: document.getElementById('search-input').value
+    };
+    
+    const filteredNews = filterArticles(newsData);
+    displayNewsFeed(filteredNews);
+}
+
+// Display news in the sidebar
 function displayNewsFeed(articles) {
     const sidebar = document.getElementById('sidebar');
     
@@ -231,32 +196,19 @@ function addTwitterFeed(sidebar) {
     sidebar.appendChild(twitterFeed);
 }
 
+// Toggle source expansion
 function toggleSource(element) {
-    // Prevent click from bubbling to article elements
     event.stopPropagation();
-    
-    // Toggle active class on the clicked source
     element.classList.toggle('active');
 }
 
+// Load article to main content
 function loadArticle(articleId) {
-    // Prevent event from bubbling to the source element
     event.stopPropagation();
     
-    // Find the article in our data
-    let article = null;
-    for (const dateKey in newsByDate) {
-        const found = newsByDate[dateKey].find(a => a.id === articleId);
-        if (found) {
-            article = found;
-            break;
-        }
-    }
+    const article = newsData.find(a => a.id === articleId);
     
     if (article) {
-        // Generate a source URL (this would be real in production)
-        const sourceUrl = generateSourceUrl(article);
-        
         const mainContent = document.getElementById('main-content');
         mainContent.innerHTML = `
             <h1 class="content-title">${article.title}</h1>
@@ -267,61 +219,16 @@ function loadArticle(articleId) {
             <div class="content-body">
                 ${article.content}
             </div>
-            <a href="${sourceUrl}" target="_blank" class="article-source-link">
+            ${article.link ? `
+            <a href="${article.link}" target="_blank" class="article-source-link">
                 Read the original article on ${article.source} →
             </a>
+            ` : ''}
         `;
     }
 }
 
-// Generate a source URL based on the article
-function generateSourceUrl(article) {
-    // In a real application, this would link to the actual article URL
-    // For demo purposes, we'll create fake URLs
-    const sourceDomains = {
-        'Radio Okapi': 'https://www.radiookapi.net',
-        'Actualite.cd': 'https://actualite.cd',
-        'Radio France Internationale': 'https://www.rfi.fr/fr',
-        'Mines.cd': 'https://mines.cd'
-    };
-    
-    const domain = sourceDomains[article.source] || 'https://example.com';
-    const slug = article.title.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-');
-    
-    switch (article.source) {
-        case 'Radio Okapi':
-            if (article.category === 'politique') {
-                return `${domain}/politique/${slug}`;
-            } else if (article.category === 'securite') {
-                return `${domain}/securite/${slug}`;
-            } else if (article.category === 'societe') {
-                return `${domain}/societe/${slug}`;
-            }
-            break;
-        case 'Actualite.cd':
-            if (article.category === 'politique') {
-                return `${domain}/category/actualite/politique/${slug}`;
-            } else if (article.category === 'securite') {
-                return `${domain}/category/actualite/securite/${slug}`;
-            }
-            break;
-        case 'Radio France Internationale':
-            if (article.title.toLowerCase().includes('rdc')) {
-                return `${domain}/tag/rdc/${slug}`;
-            } else if (article.title.toLowerCase().includes('rwanda')) {
-                return `${domain}/tag/rwanda/${slug}`;
-            } else if (article.title.toLowerCase().includes('burundi')) {
-                return `${domain}/tag/burundi/${slug}`;
-            }
-            break;
-        case 'Mines.cd':
-            return `${domain}/articles/${slug}`;
-    }
-    
-    return `${domain}/articles/${slug}`;
-}
-
-// Display Twitter timeline in the main content
+// Display Twitter timeline
 function showTwitterTimeline(handle) {
     const mainContent = document.getElementById('main-content');
     
@@ -332,7 +239,4 @@ function showTwitterTimeline(handle) {
             <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
         </div>
     `;
-    
-    // When the Twitter widget script loads, it will automatically transform the <a> element
-    // into an embedded timeline
 }
