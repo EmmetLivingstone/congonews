@@ -5,6 +5,8 @@ let currentFilter = {
     search: ''
 };
 let newsData = [];
+let newsByDate = {};
+let currentDateKey = '';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,7 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('category-filter').addEventListener('change', handleFilterChange);
     document.getElementById('source-filter').addEventListener('change', handleFilterChange);
     document.getElementById('search-input').addEventListener('input', handleFilterChange);
+    
     document.getElementById('refresh-button').addEventListener('click', fetchLatestNews);
+    document.getElementById('prevDay').addEventListener('click', goToPreviousDay);
+    document.getElementById('nextDay').addEventListener('click', goToNextDay);
     
     // Initial load
     fetchLatestNews();
@@ -27,25 +32,53 @@ async function fetchLatestNews() {
     document.getElementById('refresh-button').textContent = 'Refreshing...';
     
     try {
-        const response = await fetch('/api/get-news');
+        const response = await fetch('/.netlify/functions/get-news');
         
         if (!response.ok) {
             throw new Error('Failed to fetch news');
         }
         
         const data = await response.json();
-        newsData = data.news;
+        
+        // Store the news by date
+        newsByDate = data.byDate || {};
+        
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Set available dates for navigation
+        const availableDates = Object.keys(newsByDate).sort().reverse();
+        
+        if (availableDates.length === 0) {
+            throw new Error('No news articles found');
+        }
+        
+        // See if today's news is available
+        if (newsByDate[today] && newsByDate[today].length > 0) {
+            currentDateKey = today;
+            updateDateDisplay(currentDateKey);
+        } else {
+            // If no today's news, use the most recent date
+            currentDateKey = availableDates[0];
+            updateDateDisplay(currentDateKey, false);
+        }
+        
+        // Load current date's news
+        newsData = newsByDate[currentDateKey] || [];
         
         // Update last refreshed time
         const now = new Date();
         document.getElementById('last-refreshed').textContent = now.toLocaleString();
+        
+        // Update navigation buttons
+        updateNavigationButtons(availableDates);
         
         // Apply current filters and display
         const filteredNews = filterArticles(newsData);
         displayNewsFeed(filteredNews);
     } catch (error) {
         console.error('Error:', error);
-        sidebar.innerHTML = `<div class="error">Failed to fetch latest news. Please try again later.</div>`;
+        sidebar.innerHTML = `<div class="error">Failed to fetch latest news. Please try again later.<br>${error.message}</div>`;
     } finally {
         document.getElementById('refresh-button').disabled = false;
         document.getElementById('refresh-button').textContent = 'Refresh News';
@@ -84,6 +117,63 @@ function handleFilterChange() {
     
     const filteredNews = filterArticles(newsData);
     displayNewsFeed(filteredNews);
+}
+
+// Navigate to previous day
+function goToPreviousDay() {
+    const dates = Object.keys(newsByDate).sort().reverse();
+    const currentIndex = dates.indexOf(currentDateKey);
+    
+    if (currentIndex < dates.length - 1) {
+        currentDateKey = dates[currentIndex + 1];
+        newsData = newsByDate[currentDateKey] || [];
+        updateDateDisplay(currentDateKey);
+        updateNavigationButtons(dates);
+        
+        // Apply current filters and display
+        const filteredNews = filterArticles(newsData);
+        displayNewsFeed(filteredNews);
+    }
+}
+
+// Navigate to next day
+function goToNextDay() {
+    const dates = Object.keys(newsByDate).sort().reverse();
+    const currentIndex = dates.indexOf(currentDateKey);
+    
+    if (currentIndex > 0) {
+        currentDateKey = dates[currentIndex - 1];
+        newsData = newsByDate[currentDateKey] || [];
+        updateDateDisplay(currentDateKey);
+        updateNavigationButtons(dates);
+        
+        // Apply current filters and display
+        const filteredNews = filterArticles(newsData);
+        displayNewsFeed(filteredNews);
+    }
+}
+
+// Update date display
+function updateDateDisplay(dateStr, isToday = true) {
+    const dateObj = new Date(dateStr);
+    let displayDate;
+    
+    if (isToday) {
+        displayDate = `Today (${dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })})`;
+    } else {
+        displayDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    
+    document.getElementById('currentDate').textContent = displayDate;
+    document.getElementById('view-date').textContent = displayDate;
+}
+
+// Update navigation buttons
+function updateNavigationButtons(dates) {
+    const currentIndex = dates.indexOf(currentDateKey);
+    
+    document.getElementById('prevDay').disabled = (currentIndex >= dates.length - 1);
+    document.getElementById('nextDay').disabled = (currentIndex <= 0);
 }
 
 // Display news in the sidebar
@@ -187,56 +277,4 @@ function addTwitterFeed(sidebar) {
                 <img src="/api/placeholder/40/40" alt="Steve Wembi" class="profile-img">
                 <div>
                     <div class="profile-name">Steve Wembi</div>
-                    <div class="profile-handle">@wembi_steve</div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    sidebar.appendChild(twitterFeed);
-}
-
-// Toggle source expansion
-function toggleSource(element) {
-    event.stopPropagation();
-    element.classList.toggle('active');
-}
-
-// Load article to main content
-function loadArticle(articleId) {
-    event.stopPropagation();
-    
-    const article = newsData.find(a => a.id === articleId);
-    
-    if (article) {
-        const mainContent = document.getElementById('main-content');
-        mainContent.innerHTML = `
-            <h1 class="content-title">${article.title}</h1>
-            <div class="content-meta">
-                <span>${article.source} | <span class="article-category">${article.category}</span></span>
-                <span>${article.date}</span>
-            </div>
-            <div class="content-body">
-                ${article.content}
-            </div>
-            ${article.link ? `
-            <a href="${article.link}" target="_blank" class="article-source-link">
-                Read the original article on ${article.source} →
-            </a>
-            ` : ''}
-        `;
-    }
-}
-
-// Display Twitter timeline
-function showTwitterTimeline(handle) {
-    const mainContent = document.getElementById('main-content');
-    
-    mainContent.innerHTML = `
-        <h2>Twitter Timeline: @${handle}</h2>
-        <div class="twitter-timeline-container">
-            <a class="twitter-timeline" data-height="600" data-theme="dark" href="https://twitter.com/${handle}?ref_src=twsrc%5Etfw">Tweets by ${handle}</a>
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        </div>
-    `;
-}
+                    <div class="profile-handle">
