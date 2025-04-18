@@ -292,7 +292,7 @@ select, input {
 }
 
 .refresh-controls {
-    padding: 10px;
+    padding: 10px 15px;
     background-color: #2a2a2a;
     display: flex;
     justify-content: space-between;
@@ -322,4 +322,13 @@ select, input {
 .refresh-info {
     color: #aaa;
     font-size: 14px;
+}
+
+.error {
+    color: #ff5555;
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    border-left: 3px solid #ff5555;
+    margin: 20px;
 }
