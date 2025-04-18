@@ -278,3 +278,67 @@ function addTwitterFeed(sidebar) {
                 <div>
                     <div class="profile-name">Steve Wembi</div>
                     <div class="profile-handle">
+<div class="profile-name">Steve Wembi</div>
+                    <div class="profile-handle">@wembi_steve</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    sidebar.appendChild(twitterFeed);
+}
+
+// Toggle source expansion
+function toggleSource(element) {
+    event.stopPropagation();
+    element.classList.toggle('active');
+}
+
+// Load article to main content
+function loadArticle(articleId) {
+    event.stopPropagation();
+    
+    // Find the article in all date groups
+    let article = null;
+    
+    // Look through all dates
+    for (const dateKey in newsByDate) {
+        const found = newsByDate[dateKey].find(a => a.id === articleId);
+        if (found) {
+            article = found;
+            break;
+        }
+    }
+    
+    if (article) {
+        const mainContent = document.getElementById('main-content');
+        mainContent.innerHTML = `
+            <h1 class="content-title">${article.title}</h1>
+            <div class="content-meta">
+                <span>${article.source} | <span class="article-category">${article.category}</span></span>
+                <span>${article.date}</span>
+            </div>
+            <div class="content-body">
+                ${article.content}
+            </div>
+            ${article.link ? `
+            <a href="${article.link}" target="_blank" class="article-source-link">
+                Read the original article on ${article.source} →
+            </a>
+            ` : ''}
+        `;
+    }
+}
+
+// Display Twitter timeline
+function showTwitterTimeline(handle) {
+    const mainContent = document.getElementById('main-content');
+    
+    mainContent.innerHTML = `
+        <h2>Twitter Timeline: @${handle}</h2>
+        <div class="twitter-timeline-container">
+            <a class="twitter-timeline" data-height="600" data-theme="dark" href="https://twitter.com/${handle}?ref_src=twsrc%5Etfw">Tweets by ${handle}</a>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+    `;
+}
